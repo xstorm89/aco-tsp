@@ -26,7 +26,7 @@ public class CityView {
         this.tspCity = tspCity;
     }
 
-    public static double getDistance(Point p1, Point p2)
+    public static double calculateDistance(Point p1, Point p2)
     {
         //using pythagoras' theorem: c² = a² + b², we calculate the distance by
         //calculating for the third side (which is the hypotenuse of the right triangle)
@@ -34,9 +34,9 @@ public class CityView {
         return Math.sqrt(Math.pow(p1.x - p2.x, 2) + Math.pow(p1.y - p2.y, 2));
     }
 
-    public static double getDistance(DefaultKeyValue line)
+    public static double calculateDistance(DefaultKeyValue line)
     {
-        return getDistance((Point)line.getKey(), (Point)line.getValue());
+        return calculateDistance((Point)line.getKey(), (Point)line.getValue());
     }
     public Point getLocation() {
         return location;
