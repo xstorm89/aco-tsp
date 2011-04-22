@@ -40,7 +40,8 @@ public class TSPMain extends javax.swing.JFrame {
 
     /** Creates new form TSPMain */
     public TSPMain() {
-        cityLocations = new ArrayList<Point>();
+        //cityLocations = new ArrayList<Point>();
+        cities = new ArrayList<CityView>();
          roads = new ArrayList<CityPair>();
         initComponents();
     }
@@ -130,12 +131,13 @@ public class TSPMain extends javax.swing.JFrame {
 
     private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
         // TODO add your handling code here:
-        StopTsp();
+      //  StopTsp();
 
-        if (cityLocations.size() < 4) {
+        if (cities.size() < 4) {
             JOptionPane.showMessageDialog(this,
                     "At least 4 cities are needed",
                     "Insufficient cities", JOptionPane.ERROR_MESSAGE);
+            return;
         }
         btnStop.setEnabled(true);
         btnStart.setEnabled(false);
@@ -163,9 +165,16 @@ public class TSPMain extends javax.swing.JFrame {
     private javax.swing.JPanel pnlDraw;
     // End of variables declaration//GEN-END:variables
 
-    void addClickPoint(Point point) {
+    public void addClickPoint(Point point) {
         //cityLocations.add(point);
-        cities.add(new CityView(point, nameFromLocation(point), new City(nameFromLocation(point))));
+        CityView cityView = new CityView(point, nameFromLocation(point), new City(nameFromLocation(point)));
+        cities.add(cityView);
+
+//        for(CityView city : cities)
+//        {
+//            System.out.println("C1 :" + cityView.getName() + " C2: " + city.getName());
+//            roads.add(new CityPair(cityView, city));
+//        }
     }
 
     private String nameFromLocation(Point location) {
@@ -187,8 +196,20 @@ public class TSPMain extends javax.swing.JFrame {
 
     private World constructTSP() {
         worldBuilder = new WorldBuilder();
-        cityMap = new HashMap<City, CityView>(cityLocations.size());
-       
+        cityMap = new HashMap<City, CityView>(cities.size());
+
+        //create road map
+        for(int i=0; i<cities.size(); i++)
+        {
+            for(int j=0; j<cities.size(); j++)
+            {
+                if(i != j)
+                {
+                   roads.add(new CityPair(cities.get(i), cities.get(j)));
+                   System.out.println("C1 :" + cities.get(i).getName() + " C2: " + cities.get(j).getName());
+                }
+            }
+        }
 
         for (Iterator iter = cities.iterator(); iter.hasNext();) {
             CityView cityView = (CityView) iter.next();
