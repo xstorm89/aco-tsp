@@ -8,8 +8,20 @@
  *
  * Created on 22-Apr-2011, 13:24:51
  */
-
 package worldview;
+
+import antcolony.City;
+import antcolony.Road;
+import antcolony.World;
+import antcolony.WorldBuilder;
+import java.awt.Point;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -17,8 +29,19 @@ package worldview;
  */
 public class TSPMain extends javax.swing.JFrame {
 
+    List<Point> cityLocations;
+    Thread tspThread;
+    List<City> bestTour;
+    List<CityView> cities;
+    HashMap<City, CityView> cityMap;
+    WorldBuilder worldBuilder;
+    HashMap<Road, CityPair> roadMap;
+    List<CityPair> roads;
+
     /** Creates new form TSPMain */
     public TSPMain() {
+        cityLocations = new ArrayList<Point>();
+         roads = new ArrayList<CityPair>();
         initComponents();
     }
 
@@ -31,7 +54,7 @@ public class TSPMain extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        pnlDraw = new javax.swing.JPanel();
+        pnlDraw = new DrawingArea(this);
         btnStart = new javax.swing.JButton();
         btnStop = new javax.swing.JButton();
         btnClear = new javax.swing.JButton();
@@ -40,6 +63,7 @@ public class TSPMain extends javax.swing.JFrame {
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Travelling Salesman");
         setName("TSP"); // NOI18N
+        setResizable(false);
 
         pnlDraw.setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 
@@ -62,6 +86,7 @@ public class TSPMain extends javax.swing.JFrame {
         });
 
         btnStop.setText("Stop");
+        btnStop.setEnabled(false);
 
         btnClear.setText("Clear");
 
@@ -105,19 +130,31 @@ public class TSPMain extends javax.swing.JFrame {
 
     private void btnStartActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStartActionPerformed
         // TODO add your handling code here:
+        StopTsp();
+
+        if (cityLocations.size() < 4) {
+            JOptionPane.showMessageDialog(this,
+                    "At least 4 cities are needed",
+                    "Insufficient cities", JOptionPane.ERROR_MESSAGE);
+        }
+        btnStop.setEnabled(true);
+        btnStart.setEnabled(false);
+
+        tspThread = new Thread(new TSPThread());
+        tspThread.start();
     }//GEN-LAST:event_btnStartActionPerformed
 
     /**
-    * @param args the command line arguments
-    */
+     * @param args the command line arguments
+     */
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
+
             public void run() {
                 new TSPMain().setVisible(true);
             }
         });
     }
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnClear;
     private javax.swing.JButton btnStart;
@@ -126,4 +163,55 @@ public class TSPMain extends javax.swing.JFrame {
     private javax.swing.JPanel pnlDraw;
     // End of variables declaration//GEN-END:variables
 
+    void addClickPoint(Point point) {
+        //cityLocations.add(point);
+        cities.add(new CityView(point, nameFromLocation(point), new City(nameFromLocation(point))));
+    }
+
+    private String nameFromLocation(Point location) {
+        return location.toString();
+    }
+
+    private void StopTsp() {
+
+        if (tspThread != null && tspThread.isAlive()) {
+            try {
+                tspThread.interrupt();
+                tspThread.join();
+            } catch (InterruptedException ex) {
+                Logger.getLogger(TSPMain.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+    }
+
+    private World constructTSP() {
+        worldBuilder = new WorldBuilder();
+        cityMap = new HashMap<City, CityView>(cityLocations.size());
+       
+
+        for (Iterator iter = cities.iterator(); iter.hasNext();) {
+            CityView cityView = (CityView) iter.next();
+            cityView.setTspCity(worldBuilder.addCity(cityView.getName()));
+            cityMap.put(cityView.getTspCity(), cityView);
+        }
+
+        roadMap = new HashMap<Road, CityPair>((int)Math.pow(cities.size(), 2));
+
+        for(CityPair road : roads)
+        {
+            roadMap.put(worldBuilder.addRoad(CityView.calculateDistance(road.getCityFrom().getLocation(), 
+                    road.getCityTo().getLocation()),road.getCityFrom().getTspCity(), road.getCityTo().getTspCity()), road);
+        }
+
+        return new World(worldBuilder);
+
+    }
+
+    class TSPThread implements Runnable {
+        public void run() {
+            World tspWorld = constructTSP();
+            bestTour = tspWorld.findTour();
+        }
+    }
 }
