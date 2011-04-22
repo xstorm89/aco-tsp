@@ -58,11 +58,21 @@ public class WorldBuilder {
         return addRoad(distance, fromCity, toCity);
     }
 
-    private Road addRoad(double distance, City fromCity, City toCity) {
+    public Road addRoad(double distance, City fromCity, City toCity) {
         Road road = new Road(distance);
         fromCity.addRoad(toCity, road);
         toCity.addRoad(fromCity, road);
         roads.add(road);
         return road;
     }
+
+    public List<City> getCities() {
+        return new ArrayList<City>(cities.values());
+    }
+
+    public List<Road> getRoads() {
+        return roads;
+    }
+    
+
 }

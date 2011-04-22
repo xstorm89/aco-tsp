@@ -40,6 +40,10 @@ public class World extends Observable {
 
     }
 
+    public World(WorldBuilder worldBuilder) {
+        this(worldBuilder.getCities(), worldBuilder.getRoads());
+    }
+
     private double sumRoadDistances() {
         double distanceSum = 0.0;
 
