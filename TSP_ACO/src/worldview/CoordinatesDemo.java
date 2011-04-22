@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package gui;
+package worldview;
 
 import java.awt.Color;
 import java.awt.Component;
