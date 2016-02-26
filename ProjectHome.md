@@ -1,0 +1,1 @@
+This is a Java port of the VB.NET implementation by Paul Theodor Pyl and Konrad LM Rudolph (http://activevb.de/tutorials/tut_antalgo/tut_antalgo.html).
